@@ -2,7 +2,6 @@
 
 '''
 Download resources needed, change origin url, sync the static repo(if needed).
-Make sure you are in dir for storage.
 '''
 
 from os import path
@@ -21,7 +20,7 @@ converted = []
 
 def download(url):
     saved_file = path.join(save_dir, url.split('/')[-1])
-    if path.exists(saved_file): # resist repetition
+    if path.exists(saved_file):  # resist repetition
         with open(saved_file, 'rb') as f:
             hash_value = hash(f.read())
             if hash_value == hash(request.urlopen(url).read()):
@@ -35,6 +34,7 @@ def download(url):
         return None
     return path.relpath(saved_file, local_static_repo_dir)
 
+
 def main(dir_file):
     if path.isdir(dir_file):
         files = [i if i[-3:] == '.md' else None for i in os.listdir(dir_file)]
@@ -47,8 +47,10 @@ def main(dir_file):
             with codecs.open(path.join(dir_file, file), 'r', encoding='utf-8') as f:
                 for line in f:
                     if (match := re.findall(r'\!\[.*?\]\((.*?)\)', line)):
-                        new_url = 'https://static.beta.ustclug.org/'+ download(match[0])
-                        file_content += re.sub(r'\!\[(.*?)\]\(.*?\)', '![\1]('+new_url+')', line)
+                        new_url = 'https://static.beta.ustclug.org/' + \
+                            download(match[0])
+                        file_content += re.sub(r'\!\[(.*?)\]\(.*?\)',
+                                               '![\1]('+new_url+')', line)
                     else:
                         file_content += line
             with codecs.open(path.join(dir_file, file), 'w', encoding='utf-8') as f:
@@ -56,9 +58,11 @@ def main(dir_file):
     global converted
     converted += files
 
+
 def help(exit_code):
     print('./scratch.py [source file|source dir] [static repo dir]')
     exit(exit_code)
+
 
 if __name__ == "__main__":
     if '-h' in sys.argv or '--help' in sys.argv:
@@ -70,7 +74,7 @@ if __name__ == "__main__":
         save_dir = sys.argv[2]
     elif len(sys.argv) < 2 or len(sys.argv) > 3:
         help(1)
-    
+
     try:
         with open(path.join(save_dir, '_converted.json'), 'r') as f:
             converted = json.load(f)
@@ -81,5 +85,3 @@ if __name__ == "__main__":
 
     with open(path.join(save_dir, '_converted.json'), 'w') as f:
         json.dump(converted, f)
-    
-        
