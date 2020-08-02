@@ -50,7 +50,7 @@ def main(dir_file):
                         new_url = 'https://static.beta.ustclug.org/' + \
                             download(match[0])
                         file_content += re.sub(r'\!\[(.*?)\]\(.*?\)',
-                                               '![\1]('+new_url+')', line)
+                                               r'![\1]('+new_url+')', line)
                     else:
                         file_content += line
             with codecs.open(path.join(dir_file, file), 'w', encoding='utf-8') as f:
