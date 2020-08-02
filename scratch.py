@@ -20,16 +20,16 @@ converted = []
 
 def download(url):
     saved_file = path.join(save_dir, url.split('/')[-1])
-    if path.exists(saved_file):  # resist repetition
-        with open(saved_file, 'rb') as f:
-            hash_value = hash(f.read())
-            if hash_value == hash(request.urlopen(url).read()):
-                return path.relpath(saved_file, local_static_repo_dir)
-        path.join(save_dir, hash_value + '.' + saved_file.split('.')[-1])
     try:
+        if path.exists(saved_file):  # resist repetition
+            with open(saved_file, 'rb') as f:
+                hash_value = hash(f.read())
+                if hash_value == hash(request.urlopen(url).read()):
+                    return path.relpath(saved_file, local_static_repo_dir)
+            path.join(save_dir, hash_value + '.' + saved_file.split('.')[-1])
         with open(saved_file, 'wb') as f:
             f.write(request.urlopen(url).read())
-    except:
+    except Exception as e:
         print(f'{saved_file} fail to save.')
         return None
     return path.relpath(saved_file, local_static_repo_dir)
@@ -47,10 +47,13 @@ def main(dir_file):
             with codecs.open(path.join(dir_file, file), 'r', encoding='utf-8') as f:
                 for line in f:
                     if (match := re.findall(r'\!\[.*?\]\((.*?)\)', line)):
-                        new_url = 'https://static.beta.ustclug.org/' + \
-                            download(match[0])
-                        file_content += re.sub(r'\!\[(.*?)\]\(.*?\)',
-                                               r'![\1]('+new_url+')', line)
+                        try:
+                            new_url = 'https://static.beta.ustclug.org/' + \
+                                download(match[0])
+                            file_content += re.sub(r'\!\[(.*?)\]\(.*?\)',
+                                                r'![\1]('+new_url+')', line)
+                        except TypeError:
+                            file_content += line
                     else:
                         file_content += line
             with codecs.open(path.join(dir_file, file), 'w', encoding='utf-8') as f:
