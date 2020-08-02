@@ -8,7 +8,7 @@ from os import path
 import os
 import sys
 import codecs
-from urllib import request
+from urllib import request, parse
 import re
 import json
 
@@ -19,7 +19,7 @@ converted = []
 
 
 def download(url):
-    saved_file = path.join(save_dir, url.split('/')[-1])
+    saved_file = path.join(save_dir, parse.unquote(url.split('/')[-1])) # filename is quoted before
     try:
         if path.exists(saved_file):  # resist repetition
             with open(saved_file, 'rb') as f:
